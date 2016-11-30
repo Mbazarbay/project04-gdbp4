@@ -8,14 +8,20 @@ int x = 0;
 
 struct lock m;
 
+int add(int x, int y) {
+  return x + y;
+}
+
 
 int thread_func(void *arg)
 {
   int id = (int) arg;
   int i;
-  for (i = 0; i < 100000000; i++) {
+
+  for (i = 0; i < 10000; i++) {
     thread_lock_acquire(&m);
-    x = x + 1;
+    printf(1, "[%d] %d\n", id, x);
+    x = add(x, 1);
     thread_lock_release(&m);
   }
   thread_exit(id);
