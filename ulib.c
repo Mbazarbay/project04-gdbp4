@@ -103,3 +103,54 @@ memmove(void *vdst, void *vsrc, int n)
     *dst++ = *src++;
   return vdst;
 }
+
+int 
+thread_create(struct thread *t, int (*func)(void *), void *stack, void *arg)
+{
+  t->func = func;
+  t->stack = stack;
+  t->arg = arg;
+  t->alive = 1;
+  t->exit_value = 0;
+  t->pid = clone(func, stack, (void *) arg, (void *) t);
+  return 0;
+}
+
+int 
+thread_exit(int exit_value) 
+{
+  struct thread *t;
+  t = (struct thread *) getuthread();
+  t->exit_value = exit_value;
+  t->alive = 0;
+  exit();
+}
+
+int 
+thread_join(struct thread *t)
+{
+  /* replace me -> you need to eliminate busy waiting and have no zombies! */
+  while (t->alive);
+  return t->exit_value;
+}
+
+int
+thread_lock_init(struct lock *l)
+{
+  /* put your code here */
+  return 0;
+}
+
+int 
+thead_lock_acquire(struct lock *l)
+{
+  /* put your code here */
+  return 0;
+}
+
+int
+thread_lock_release(struct lock *l)
+{
+  /* put your code here */
+  return 0;
+}

@@ -52,6 +52,8 @@ found:
   /* gdbp4 */
   /* note we use this to keep track of the allocated page user virtual address */
   p->allocpage = (void *) 0;
+  p->kt = (void *) 0;
+  p->uthread = (void *) 0;
   
   release(&ptable.lock);
 
@@ -251,7 +253,19 @@ wait(void)
         p->kstack = 0;
         /* gdbp4 */
         /* note that freevm will also deallocate the allocpage if it exists */
-        freevm(p->pgdir);
+        if (p->kt) {
+          //cprintf("wait(): check kt->ref_count\n");
+          p->kt->ref_count -= 1;
+          if (p->kt->ref_count == 0) {
+            //cprintf("wait(): kt->ref_count == 0\n");
+            freevm(p->pgdir);
+            kfree((void *) p->kt);
+          }
+          p->kt = (void *) 0;
+        } else {
+          freevm(p->pgdir);
+        }
+
         p->pid = 0;
         p->parent = 0;
         p->name[0] = 0;
@@ -490,4 +504,80 @@ procdump(void)
 }
 
 
+// Create a new kernel thread (process).
+// Share the same address space as the parent.
+int
+clone(void *func, void *stack, void *arg, void *uthread)
+{
+  int i, pid;
+  struct proc *np;
+  void *sp;
+  uint ustack[3];
+
+  // Allocate process.
+  if((np = allocproc()) == 0){
+    return -1;
+  }
+
+  if (proc->kt) {
+    proc->kt->ref_count += 1;
+  } else {
+    proc->kt = (struct kthread *) kalloc();
+    proc->kt->ref_count = 2;
+  }
+
+  np->kt = proc->kt;
+  np->uthread = uthread;
+
+  np->pgdir = proc->pgdir;  
+  np->sz = proc->sz;
+  np->parent = proc;
+
+  *np->tf = *proc->tf;
+
+  // Clear %eax so that fork returns 0 in the child.
+  np->tf->eax = 0;
+
+  for(i = 0; i < NOFILE; i++)
+    if(proc->ofile[i])
+      np->ofile[i] = filedup(proc->ofile[i]);
+  np->cwd = idup(proc->cwd);
+
+  safestrcpy(np->name, proc->name, sizeof(proc->name));
+  int len;
+  len = strlen(np->name);
+  np->name[len] = '_';
+  np->name[len+1] = 't';
+  np->name[len+2] = '\0';
+
+  pid = np->pid;
+
+  ustack[0] = 0xffffffff;  // fake return PC
+  ustack[1] = (uint) arg;
+
+  sp = stack + PGSIZE;
+  sp -= 2 * 4;
   
+  if(copyout(np->pgdir, (uint) sp, ustack, 2 * 4) < 0)
+    goto bad;
+
+  // Commit to the user image.
+  np->tf->eip = (uint) func;  // thread function
+  np->tf->esp = (uint) sp;
+
+  acquire(&ptable.lock);
+  np->state = RUNNABLE;
+  release(&ptable.lock);
+
+  return pid;
+
+bad:
+  return -1;
+
+}
+
+int
+getuthread(void)
+{
+  return (int) proc->uthread;
+}

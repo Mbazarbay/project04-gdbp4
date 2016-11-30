@@ -103,6 +103,8 @@ extern int sys_halt(void);
 extern int sys_mygetpid(void);
 extern int sys_dumpmap(void);
 extern int sys_allocpage(void);
+extern int sys_clone(void);
+extern int sys_getuthread(void);
 
 static int (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
@@ -131,6 +133,8 @@ static int (*syscalls[])(void) = {
 [SYS_mygetpid] sys_mygetpid,
 [SYS_dumpmap] sys_dumpmap,
 [SYS_allocpage] sys_allocpage,
+[SYS_clone] sys_clone,
+[SYS_getuthread] sys_getuthread,
 };
 
 void

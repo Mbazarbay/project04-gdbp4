@@ -24,5 +24,10 @@
 #define SYS_mygetpid 23
 #define SYS_dumpmap 24
 #define SYS_allocpage 25
+#define SYS_clone 26
+#define SYS_getuthread 27
+
+
+
 
 

@@ -136,3 +136,49 @@ sys_allocpage(void)
   }
   return (int) rv;
 }
+
+int
+sys_clone(void)
+{
+  int v;
+  int id;
+  void *f;
+  void *s;
+  void *a;
+  void *t;
+
+  if(argint(0, &v) < 0)
+    return -1;
+
+  f = (void *) v;
+
+  if(argint(1, &v) < 0)
+    return -1;
+
+  s = (void *) v;
+
+  if(argint(2, &v) < 0)
+    return -1;
+
+  a = (void *) v;
+
+  if(argint(3, &v) < 0)
+    return -1;
+
+  t = (void *) v;
+
+  cprintf("f = %x\n", f);
+  cprintf("s = %x\n", s);
+  cprintf("a = %x\n", a);
+  cprintf("t = %x\n", t);
+
+  id = clone(f, s, a, t);
+
+  return id;
+}
+
+int
+sys_getuthread(void)
+{
+  return getuthread();
+}

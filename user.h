@@ -1,6 +1,19 @@
 struct stat;
 struct rtcdate;
 
+struct thread {
+  int (*func)(void *);
+  void *stack;
+  void *arg;
+  int pid;
+  int alive;
+  int exit_value;
+};
+
+struct lock {
+	int value;
+};
+
 // system calls
 int fork(void);
 int exit(void) __attribute__((noreturn));
@@ -28,6 +41,8 @@ int halt(void);
 int mygetpid(void);
 int dumpmap(void);
 void *allocpage(void *);
+int clone(int (*func)(void *), void *stack, void *arg, void *thread);
+struct thread *getuthread(void);
 
 // ulib.c
 int stat(char*, struct stat*);
@@ -42,3 +57,10 @@ void* memset(void*, int, uint);
 void* malloc(uint);
 void free(void*);
 int atoi(const char*);
+
+int thread_create(struct thread *t, int (*func)(void *), void *stack, void *arg);
+int thread_exit(int exit_value);
+int thread_join(struct thread *t);
+int thread_lock_init(struct lock *l);
+int thead_lock_acquire(struct lock *l);
+int thread_lock_release(struct lock *l);

@@ -48,6 +48,10 @@ struct context {
 
 enum procstate { UNUSED, EMBRYO, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };
 
+struct kthread {
+  int ref_count;
+};
+
 // Per-process state
 struct proc {
   uint sz;                     // Size of process memory (bytes)
@@ -64,6 +68,8 @@ struct proc {
   struct inode *cwd;           // Current directory
   char name[16];               // Process name (debugging)
   void *allocpage;
+  struct kthread *kt;
+  void *uthread;
 };
 
 // Process memory is laid out contiguously, low addresses first:
