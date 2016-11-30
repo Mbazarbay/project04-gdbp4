@@ -142,7 +142,7 @@ thread_lock_init(struct lock *l)
 }
 
 int 
-thead_lock_acquire(struct lock *l)
+thread_lock_acquire(struct lock *l)
 {
   /* put your code here */
   return 0;

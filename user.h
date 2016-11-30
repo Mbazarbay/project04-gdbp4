@@ -62,5 +62,5 @@ int thread_create(struct thread *t, int (*func)(void *), void *stack, void *arg)
 int thread_exit(int exit_value);
 int thread_join(struct thread *t);
 int thread_lock_init(struct lock *l);
-int thead_lock_acquire(struct lock *l);
+int thread_lock_acquire(struct lock *l);
 int thread_lock_release(struct lock *l);
