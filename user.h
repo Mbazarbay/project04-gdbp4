@@ -64,3 +64,10 @@ int thread_join(struct thread *t);
 int thread_lock_init(struct lock *l);
 int thread_lock_acquire(struct lock *l);
 int thread_lock_release(struct lock *l);
+/*
+int thread_cond_init(struct cond *c);
+int thread_cond_wait(struct cond *c, struct lock *l);
+int thread_cond_signal(struct cond *c);
+*/
+
+

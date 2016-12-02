@@ -8,10 +8,13 @@ int x = 0;
 
 struct lock m;
 
-int add(int x, int y) {
+int add2(int x, int y) {
   return x + y;
 }
 
+int add(int x, int y) {
+  return x + add2(y, 0);
+}
 
 int thread_func(void *arg)
 {
